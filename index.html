@@ -1,0 +1,1260 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Management System - Crispy Chicken UAE</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #00ffff;
+            --secondary: #ff00ff;
+            --success: #00ff88;
+            --warning: #ffaa00;
+            --danger: #ff0040;
+            --dark: #0a0a0a;
+            --light: rgba(255, 255, 255, 0.05);
+            --glass: rgba(255, 255, 255, 0.1);
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--dark) 0%, #1a1a2e 50%, #0f0f1e 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #ffffff;
+            min-height: 100vh;
+        }
+        
+        /* Animated background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(0, 255, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255, 0, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 20%, rgba(255, 255, 0, 0.05) 0%, transparent 50%);
+            z-index: -1;
+            animation: bgMove 20s ease-in-out infinite;
+        }
+        
+        @keyframes bgMove {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(-10px, -10px) rotate(1deg); }
+            50% { transform: translate(10px, -5px) rotate(-1deg); }
+            75% { transform: translate(-5px, 10px) rotate(1deg); }
+        }
+        
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, rgba(0, 255, 255, 0.2), rgba(255, 0, 255, 0.2));
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid var(--primary);
+            padding: 20px 0;
+            box-shadow: 0 5px 20px rgba(0, 255, 255, 0.3);
+        }
+        
+        /* Navigation */
+        .nav-tabs {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 20px;
+        }
+        
+        .nav-tabs .nav-link {
+            color: rgba(255, 255, 255, 0.7);
+            border: none;
+            padding: 10px 20px;
+            margin-right: 5px;
+            border-radius: 8px 8px 0 0;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-tabs .nav-link:hover {
+            color: var(--primary);
+            background: rgba(0, 255, 255, 0.1);
+        }
+        
+        .nav-tabs .nav-link.active {
+            color: white;
+            background: rgba(0, 255, 255, 0.2);
+            border-bottom: 2px solid var(--primary);
+        }
+        
+        /* Glassmorphism cards */
+        .glass-card {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+        
+        .glass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 255, 255, 0.3);
+        }
+        
+        .section-header {
+            background: rgba(0, 255, 255, 0.1);
+            padding: 15px 20px;
+            border-radius: 15px 15px 0 0;
+            font-weight: 600;
+            margin: -20px -20px 20px -20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Tables */
+        .custom-table {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .custom-table th {
+            background: rgba(0, 255, 255, 0.1);
+            color: white;
+            font-weight: 600;
+            border: none;
+            padding: 12px 15px;
+        }
+        
+        .custom-table td {
+            padding: 10px 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            vertical-align: middle;
+        }
+        
+        .custom-table tr:hover {
+            background: rgba(0, 255, 255, 0.05);
+        }
+        
+        /* Status indicators */
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-active {
+            background: var(--success);
+            box-shadow: 0 0 10px var(--success);
+        }
+        
+        .status-inactive {
+            background: var(--danger);
+            box-shadow: 0 0 10px var(--danger);
+        }
+        
+        /* Chart container */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-top: 20px;
+        }
+        
+        .sales-total {
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+        
+        /* Metrics */
+        .metric-card {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 255, 255, 0.3);
+        }
+        
+        .metric-value {
+            font-size: 36px;
+            font-weight: bold;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+        }
+        
+        /* Buttons */
+        .btn-neon {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-neon:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 255, 255, 0.5);
+        }
+        
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 255, 136, 0.2);
+            border: 1px solid var(--success);
+            border-radius: 10px;
+            padding: 15px;
+            color: white;
+            box-shadow: 0 4px 20px rgba(0, 255, 136, 0.5);
+            transform: translateX(-400px);
+            transition: transform 0.3s ease;
+            z-index: 1001;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        /* Search bar */
+        .search-bar {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            padding: 10px 20px;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        
+        .search-bar:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+            outline: none;
+        }
+        
+        .search-bar::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        /* Status badges */
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            display: inline-block;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .status-active-badge { 
+            background: rgba(0, 255, 136, 0.2); 
+            color: var(--success);
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.5);
+        }
+        
+        .status-delayed { 
+            background: rgba(255, 0, 64, 0.2); 
+            color: var(--danger);
+            box-shadow: 0 0 15px rgba(255, 0, 64, 0.5);
+        }
+        
+        /* Agent markers */
+        .agent-marker {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-left: 5px;
+        }
+        
+        .agent-ann { background: #00ff88; box-shadow: 0 0 10px #00ff88; }
+        .agent-bhawna { background: #ff00ff; box-shadow: 0 0 10px #ff00ff; }
+        .agent-manju { background: #ffaa00; box-shadow: 0 0 10px #ffaa00; }
+        .agent-saleh { background: #00ffff; box-shadow: 0 0 10px #00ffff; }
+        .agent-nons { background: #ff6b6b; box-shadow: 0 0 10px #ff6b6b; }
+        
+        /* File upload */
+        .file-upload {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+            overflow: hidden;
+        }
+        
+        .file-upload input[type=file] {
+            position: absolute;
+            left: -9999px;
+        }
+        
+        .file-upload-label {
+            display: inline-block;
+            padding: 8px 16px;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .file-upload-label:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 255, 255, 0.5);
+        }
+        
+        /* Data source indicator */
+        .data-source {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 255, 255, 0.2);
+            border: 1px solid var(--primary);
+            border-radius: 10px;
+            padding: 10px 15px;
+            color: white;
+            font-size: 12px;
+            box-shadow: 0 4px 20px rgba(0, 255, 255, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h1 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Crispy Chicken UAE</h1>
+                    <p class="mb-0 mt-1">Order Management & System Settings</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <div class="d-flex justify-content-md-end align-items-center">
+                        <div class="file-upload me-2">
+                            <input type="file" id="fileInput" accept=".xlsx,.xls" onchange="handleFileUpload(event)">
+                            <label for="fileInput" class="file-upload-label">
+                                <i class="fas fa-upload me-1"></i> Upload Excel
+                            </label>
+                        </div>
+                        <button class="btn btn-light btn-sm me-2" onclick="refreshData()">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                        <button class="btn btn-neon" onclick="exportAllData()">
+                            <i class="fas fa-download"></i> Export All
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container mt-4">
+        <!-- Navigation Tabs -->
+        <ul class="nav nav-tabs" id="mainTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="orders-tab" data-bs-toggle="tab" data-bs-target="#orders" type="button" role="tab" aria-controls="orders" aria-selected="true">
+                    <i class="fas fa-list me-2"></i>Orders
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="system-tab" data-bs-toggle="tab" data-bs-target="#system" type="button" role="tab" aria-controls="system" aria-selected="false">
+                    <i class="fas fa-cog me-2"></i>System Settings
+                </button>
+            </li>
+        </ul>
+        
+        <!-- Tab Content -->
+        <div class="tab-content" id="mainTabContent">
+            <!-- Orders Tab -->
+            <div class="tab-pane fade show active" id="orders" role="tabpanel" aria-labelledby="orders-tab">
+                <!-- Metrics Overview -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="metric-card">
+                            <i class="fas fa-shopping-cart fa-2x text-primary"></i>
+                            <div class="metric-value mt-2" id="totalOrders">215</div>
+                            <div>Total Orders</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="metric-card">
+                            <i class="fas fa-truck fa-2x text-primary"></i>
+                            <div class="metric-value mt-2" id="deliveryOrders">189</div>
+                            <div>Delivery Orders</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="metric-card">
+                            <i class="fas fa-store fa-2x text-warning"></i>
+                            <div class="metric-value mt-2" id="pickupOrders">26</div>
+                            <div>Pickup Orders</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="metric-card">
+                            <i class="fas fa-users fa-2x text-success"></i>
+                            <div class="metric-value mt-2" id="activeAgents">7</div>
+                            <div>Active Agents</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Orders Section -->
+                <div class="glass-card">
+                    <div class="section-header">
+                        <h3><i class="fas fa-list me-2"></i>Orders</h3>
+                    </div>
+                    <div class="p-3 mb-3">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                    <input type="text" class="form-control search-bar" placeholder="Search orders..." id="searchInput">
+                                </div>
+                            </div>
+                            <div class="col-md-6 text-md-start">
+                                <div class="d-flex flex-wrap justify-content-md-end">
+                                    <button class="btn btn-neon btn-sm me-2" onclick="filterOrders('all')">All</button>
+                                    <button class="btn btn-neon btn-sm me-2" onclick="filterOrders('delivery')">Delivery</button>
+                                    <button class="btn btn-neon btn-sm me-2" onclick="filterOrders('pickup')">Pickup</button>
+                                    <button class="btn btn-neon btn-sm me-2" onclick="filterOrders('delayed')">Delayed</button>
+                                    <button class="btn btn-neon btn-sm" onclick="filterOrders('void')">Void</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="custom-table">
+                        <table class="table table-hover mb-0" id="ordersTable">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Order No</th>
+                                    <th>Customer Name</th>
+                                    <th>Phone</th>
+                                    <th>Branch</th>
+                                    <th>Amount</th>
+                                    <th>Type</th>
+                                    <th>Status</th>
+                                    <th>Agent</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ordersTableBody">
+                                <!-- Orders will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- System Settings Tab -->
+            <div class="tab-pane fade" id="system" role="tabpanel" aria-labelledby="system-tab">
+                <!-- Branch State Section -->
+                <div class="glass-card">
+                    <div class="section-header">
+                        <h3><i class="fas fa-store me-2"></i>Branch State</h3>
+                    </div>
+                    <div class="custom-table">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Branch Name</th>
+                                    <th>Status</th>
+                                    <th>Last Connect</th>
+                                    <th>Total Orders</th>
+                                    <th>Active</th>
+                                </tr>
+                            </thead>
+                            <tbody id="branchStateTableBody">
+                                <!-- Branch data will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Extension State Section -->
+                <div class="glass-card">
+                    <div class="section-header">
+                        <h3><i class="fas fa-phone me-2"></i>Extension State</h3>
+                    </div>
+                    <div class="custom-table">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Extension</th>
+                                    <th>Status</th>
+                                    <th>Last Connect</th>
+                                    <th>Total Orders</th>
+                                </tr>
+                            </thead>
+                            <tbody id="extensionStateTableBody">
+                                <!-- Extension data will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Sales Chart Section -->
+                <div class="glass-card">
+                    <div class="section-header">
+                        <h3><i class="fas fa-chart-bar me-2"></i>Sales by Branch</h3>
+                    </div>
+                    <div class="sales-total">Sales Total: <span id="salesTotal">AED 7439</span></div>
+                    <div class="chart-container">
+                        <canvas id="salesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Notification -->
+    <div id="notification" class="notification">
+        <i class="fas fa-check-circle me-2"></i>
+        <span id="notificationText">System updated successfully</span>
+    </div>
+    
+    <!-- Data Source Indicator -->
+    <div class="data-source" id="dataSource">
+        <i class="fas fa-database me-1"></i> Data Source: <span id="dataSourceText">Sample Data</span>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script>
+        // Sample order data
+        let ordersData = [
+            {
+                date: "2025-09-07T11:09:46.847Z",
+                orderNo: "44078",
+                customerName: "MOHAMMED",
+                phone: "545848582",
+                branch: "Barsha",
+                amount: 21,
+                type: "Delivery",
+                agent: "SALEH EMAD",
+                agentMarker: "agent-saleh"
+            },
+            {
+                date: "2025-09-07T11:22:00.770Z",
+                orderNo: "44079",
+                customerName: "TYSAY",
+                branch: "Hamdan",
+                amount: 21,
+                type: "Delivery",
+                agent: "SALEH EMAD",
+                agentMarker: "agent-saleh"
+            },
+            {
+                date: "2025-09-07T11:25:56.737Z",
+                orderNo: "44080",
+                customerName: "JOMER",
+                branch: "Hamdan",
+                amount: 56,
+                type: "Delivery",
+                agent: "SALEH EMAD",
+                agentMarker: "agent-saleh"
+            },
+            {
+                date: "2025-09-07T11:38:45.137Z",
+                orderNo: "44081",
+                customerName: "RAMDY",
+                branch: "Barsha",
+                amount: 74,
+                type: "Delivery",
+                agent: "SALEH EMAD",
+                agentMarker: "agent-saleh"
+            },
+            {
+                date: "2025-09-07T12:40:10.453Z",
+                orderNo: "44082",
+                customerName: "MITCHO",
+                branch: "Hamdan",
+                amount: 33,
+                type: "Delivery",
+                agent: "SALEH EMAD",
+                agentMarker: "agent-saleh"
+            },
+            {
+                date: "2025-09-07T12:40:15.897Z",
+                orderNo: "44083",
+                customerName: "JOHN",
+                branch: "Hamdan",
+                amount: 53,
+                type: "Delivery",
+                agent: "BHAWNA SHARMA",
+                agentMarker: "agent-bhawna"
+            },
+            {
+                date: "2025-09-07T13:15:22.456Z",
+                orderNo: "44084",
+                customerName: "FATIMA",
+                branch: "Khalidiyah",
+                amount: 42,
+                type: "Pickup",
+                agent: "BHAWNA SHARMA",
+                agentMarker: "agent-bhawna"
+            },
+            {
+                date: "2025-09-07T14:30:11.789Z",
+                orderNo: "44085",
+                customerName: "YOUSUF",
+                branch: "Muroor",
+                amount: 67,
+                type: "Delivery",
+                agent: "Ann Arielle David",
+                agentMarker: "agent-ann"
+            },
+            {
+                date: "2025-09-07T15:45:33.012Z",
+                orderNo: "44086",
+                customerName: "SAIRA",
+                branch: "Shabiya",
+                amount: 29,
+                type: "Delivery",
+                agent: "manju ranabhat",
+                agentMarker: "agent-manju"
+            },
+            {
+                date: "2025-09-07T16:20:44.345Z",
+                orderNo: "44087",
+                customerName: "RAJ",
+                branch: "Barsha",
+                amount: 55,
+                type: "Delivery",
+                agent: "Nons Rose",
+                agentMarker: "agent-nons"
+            },
+            {
+                date: "2025-09-07T10:05:12.123Z",
+                orderNo: "44077",
+                customerName: "ALI",
+                phone: "501234567",
+                branch: "Barsha",
+                amount: 45,
+                type: "Delivery",
+                agent: "SALEH EMAD",
+                agentMarker: "agent-saleh"
+            },
+            {
+                date: "2025-09-07T09:30:45.678Z",
+                orderNo: "44076",
+                customerName: "SARA",
+                phone: "556789012",
+                branch: "Hamdan",
+                amount: 38,
+                type: "Pickup",
+                agent: "BHAWNA SHARMA",
+                agentMarker: "agent-bhawna"
+            },
+            {
+                date: "2025-09-07T17:15:30.987Z",
+                orderNo: "44088",
+                customerName: "OMAR",
+                phone: "523456789",
+                branch: "Khalidiyah",
+                amount: 62,
+                type: "Delivery",
+                agent: "Ann Arielle David",
+                agentMarker: "agent-ann"
+            },
+            {
+                date: "2025-09-07T18:45:22.456Z",
+                orderNo: "44089",
+                customerName: "LAILA",
+                phone: "534567890",
+                branch: "Muroor",
+                amount: 51,
+                type: "Delivery",
+                agent: "manju ranabhat",
+                agentMarker: "agent-manju"
+            },
+            {
+                date: "2025-09-07T19:30:15.789Z",
+                orderNo: "44090",
+                customerName: "AHMED",
+                phone: "545678901",
+                branch: "Shabiya",
+                amount: 47,
+                type: "Pickup",
+                agent: "Nons Rose",
+                agentMarker: "agent-nons"
+            },
+            // New orders for Al Rigga
+            {
+                date: "2025-09-07T11:45:30.123Z",
+                orderNo: "44091",
+                customerName: "KHALID",
+                phone: "551234567",
+                branch: "Al Rigga",
+                amount: 38,
+                type: "Delivery",
+                agent: "SALEH EMAD",
+                agentMarker: "agent-saleh"
+            },
+            {
+                date: "2025-09-07T12:15:45.678Z",
+                orderNo: "44092",
+                customerName: "NOURA",
+                phone: "552345678",
+                branch: "Al Rigga",
+                amount: 42,
+                type: "Pickup",
+                agent: "BHAWNA SHARMA",
+                agentMarker: "agent-bhawna"
+            },
+            {
+                date: "2025-09-07T13:30:12.345Z",
+                orderNo: "44093",
+                customerName: "SULTAN",
+                phone: "553456789",
+                branch: "Al Rigga",
+                amount: 55,
+                type: "Delivery",
+                agent: "Ann Arielle David",
+                agentMarker: "agent-ann"
+            },
+            // New orders for Sharja
+            {
+                date: "2025-09-07T10:30:22.456Z",
+                orderNo: "44094",
+                customerName: "ABDULLAH",
+                phone: "554567890",
+                branch: "Sharja",
+                amount: 48,
+                type: "Delivery",
+                agent: "manju ranabhat",
+                agentMarker: "agent-manju"
+            },
+            {
+                date: "2025-09-07T11:45:33.789Z",
+                orderNo: "44095",
+                customerName: "MARYAM",
+                phone: "555678901",
+                branch: "Sharja",
+                amount: 35,
+                type: "Pickup",
+                agent: "Nons Rose",
+                agentMarker: "agent-nons"
+            },
+            {
+                date: "2025-09-07T14:20:44.123Z",
+                orderNo: "44096",
+                customerName: "FAISAL",
+                phone: "556789012",
+                branch: "Sharja",
+                amount: 62,
+                type: "Delivery",
+                agent: "SALEH EMAD",
+                agentMarker: "agent-saleh"
+            },
+            // New orders for Electra
+            {
+                date: "2025-09-07T09:45:55.678Z",
+                orderNo: "44097",
+                customerName: "HASSAN",
+                phone: "557890123",
+                branch: "Electra",
+                amount: 40,
+                type: "Delivery",
+                agent: "BHAWNA SHARMA",
+                agentMarker: "agent-bhawna"
+            },
+            {
+                date: "2025-09-07T10:30:11.345Z",
+                orderNo: "44098",
+                customerName: "ZAINAB",
+                phone: "558901234",
+                branch: "Electra",
+                amount: 33,
+                type: "Pickup",
+                agent: "Ann Arielle David",
+                agentMarker: "agent-ann"
+            },
+            {
+                date: "2025-09-07T12:15:22.789Z",
+                orderNo: "44099",
+                customerName: "MOHAMMED",
+                phone: "559012345",
+                branch: "Electra",
+                amount: 58,
+                type: "Delivery",
+                agent: "manju ranabhat",
+                agentMarker: "agent-manju"
+            }
+        ];
+        
+        // Branch state data
+        const branchStateData = [
+            { name: "Hamdan", status: "Active", lastConnect: "2025-09-07 19:45", totalOrders: 45, active: true },
+            { name: "Shabiya", status: "Active", lastConnect: "2025-09-07 19:30", totalOrders: 38, active: true },
+            { name: "Barsha", status: "Active", lastConnect: "2025-09-07 19:20", totalOrders: 52, active: true },
+            { name: "Khalidiyah", status: "Active", lastConnect: "2025-09-07 19:15", totalOrders: 41, active: true },
+            { name: "Muroor", status: "Inactive", lastConnect: "2025-09-07 18:45", totalOrders: 35, active: false },
+            { name: "Al Wahda", status: "Active", lastConnect: "2025-09-07 19:40", totalOrders: 29, active: true },
+            // New branches
+            { name: "Al Rigga", status: "Active", lastConnect: "2025-09-07 19:35", totalOrders: 33, active: true },
+            { name: "Sharja", status: "Active", lastConnect: "2025-09-07 19:25", totalOrders: 36, active: true },
+            { name: "Electra", status: "Active", lastConnect: "2025-09-07 19:20", totalOrders: 31, active: true }
+        ];
+        
+        // Extension state data
+        const extensionStateData = [
+            { extension: "201", status: "Active", lastConnect: "2025-09-07 19:45", totalOrders: 12 },
+            { extension: "202", status: "Active", lastConnect: "2025-09-07 19:42", totalOrders: 15 },
+            { extension: "203", status: "Active", lastConnect: "2025-09-07 19:38", totalOrders: 18 },
+            { extension: "204", status: "Inactive", lastConnect: "2025-09-07 18:30", totalOrders: 8 },
+            { extension: "205", status: "Active", lastConnect: "2025-09-07 19:40", totalOrders: 14 },
+            { extension: "206", status: "Active", lastConnect: "2025-09-07 19:35", totalOrders: 16 },
+            { extension: "207", status: "Active", lastConnect: "2025-09-07 19:30", totalOrders: 13 },
+            { extension: "208", status: "Active", lastConnect: "2025-09-07 19:25", totalOrders: 11 }
+        ];
+        
+        // Calculate order status and delays
+        function calculateOrderStatus(orders) {
+            const currentTime = new Date('2025-09-07T23:59:59.999Z');
+            const standardTimes = {
+                'Pickup': 15 * 60 * 1000, // 15 minutes in milliseconds
+                'Delivery': 45 * 60 * 1000 // 45 minutes
+            };
+            
+            return orders.map(order => {
+                const orderTime = new Date(order.date);
+                const expectedTime = new Date(orderTime.getTime() + standardTimes[order.type]);
+                const isDelayed = expectedTime < currentTime;
+                const delayMinutes = isDelayed ? Math.floor((currentTime - expectedTime) / 60000) : 0;
+                
+                return {
+                    ...order,
+                    status: isDelayed ? 'Delayed' : 'Active',
+                    delayMinutes: delayMinutes,
+                    expectedTime: expectedTime
+                };
+            });
+        }
+        
+        let processedOrders = calculateOrderStatus(ordersData);
+        let currentFilter = 'all';
+        let currentAgent = 'all';
+        let salesChart = null;
+        
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            renderOrders(processedOrders);
+            renderSystemSettings();
+            initializeEventListeners();
+            updateMetrics();
+            initSalesChart();
+        });
+        
+        // Handle file upload
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+                    
+                    // Process the uploaded data
+                    processUploadedData(jsonData);
+                    
+                    // Update data source indicator
+                    document.getElementById('dataSourceText').textContent = file.name;
+                    
+                    showNotification(`Successfully uploaded ${jsonData.length} orders from ${file.name}`);
+                } catch (error) {
+                    showNotification('Error processing file. Please check the format.');
+                    console.error('File processing error:', error);
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+        
+        // Process uploaded data
+        function processUploadedData(jsonData) {
+            // Validate and transform the data
+            const validOrders = jsonData.map(row => {
+                return {
+                    date: row.date || new Date().toISOString(),
+                    orderNo: row.orderNo || row['Order No'] || '',
+                    customerName: row.customerName || row['Customer Name'] || '',
+                    phone: row.phone || row.Phone || '',
+                    branch: row.branch || row.Branch || '',
+                    amount: parseFloat(row.amount || row.Amount || 0),
+                    type: row.type || row.Type || 'Delivery',
+                    agent: row.agent || row.Agent || '',
+                    agentMarker: getAgentMarker(row.agent || row.Agent || '')
+                };
+            }).filter(order => order.orderNo && order.customerName);
+            
+            // Update orders data
+            ordersData = validOrders;
+            processedOrders = calculateOrderStatus(ordersData);
+            
+            // Re-render everything
+            renderOrders(processedOrders);
+            renderSystemSettings();
+            updateMetrics();
+            updateSalesChart();
+        }
+        
+        // Get agent marker based on agent name
+        function getAgentMarker(agentName) {
+            const name = agentName.toLowerCase();
+            if (name.includes('ann')) return 'agent-ann';
+            if (name.includes('bhawna')) return 'agent-bhawna';
+            if (name.includes('manju')) return 'agent-manju';
+            if (name.includes('saleh')) return 'agent-saleh';
+            if (name.includes('nons')) return 'agent-nons';
+            return 'agent-saleh'; // default
+        }
+        
+        // Render orders in the table
+        function renderOrders(orders) {
+            const tbody = document.getElementById('ordersTableBody');
+            tbody.innerHTML = '';
+            orders.forEach(order => {
+                const row = document.createElement('tr');
+                
+                // Format date
+                const date = new Date(order.date);
+                const formattedDate = date.toLocaleDateString('en-US');
+                const formattedTime = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                
+                // Format amount
+                const formattedAmount = order.amount.toLocaleString('en-US', { minimumFractionDigits: 2 });
+                
+                // Get status badge
+                let statusClass = order.status === 'Delayed' ? 'status-delayed' : 'status-active-badge';
+                
+                row.innerHTML = `
+                    <td>
+                        <small>${formattedDate}</small>
+                        <br>
+                        <small class="text-muted">${formattedTime}</small>
+                    </td>
+                    <td>${order.orderNo}</td>
+                    <td>${order.customerName}</td>
+                    <td>${order.phone || '-'}</td>
+                    <td>${order.branch}</td>
+                    <td>${formattedAmount} AED</td>
+                    <td>${order.type}</td>
+                    <td>
+                        <span class="status-badge ${statusClass}">${order.status}</span>
+                        ${order.status === 'Delayed' ? `<small class="d-block text-danger">${order.delayMinutes} min delay</small>` : ''}
+                    </td>
+                    <td>
+                        ${order.agent}
+                        <span class="agent-marker ${order.agentMarker}"></span>
+                    </td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        }
+        
+        // Render system settings tables
+        function renderSystemSettings() {
+            renderBranchStateTable();
+            renderExtensionStateTable();
+        }
+        
+        // Render branch state table
+        function renderBranchStateTable() {
+            const tbody = document.getElementById('branchStateTableBody');
+            tbody.innerHTML = '';
+            
+            // Calculate branch stats from orders
+            const branchStats = {};
+            processedOrders.forEach(order => {
+                if (!branchStats[order.branch]) {
+                    branchStats[order.branch] = {
+                        name: order.branch,
+                        totalOrders: 0,
+                        lastOrder: new Date(0)
+                    };
+                }
+                branchStats[order.branch].totalOrders++;
+                const orderDate = new Date(order.date);
+                if (orderDate > branchStats[order.branch].lastOrder) {
+                    branchStats[order.branch].lastOrder = orderDate;
+                }
+            });
+            
+            // Update branch state data with calculated stats
+            const updatedBranchData = branchStateData.map(branch => {
+                const stats = branchStats[branch.name];
+                if (stats) {
+                    return {
+                        ...branch,
+                        totalOrders: stats.totalOrders,
+                        lastConnect: stats.lastOrder.toLocaleString('en-US', { 
+                            year: 'numeric', 
+                            month: '2-digit', 
+                            day: '2-digit', 
+                            hour: '2-digit', 
+                            minute: '2-digit' 
+                        })
+                    };
+                }
+                return branch;
+            });
+            
+            updatedBranchData.forEach(branch => {
+                const row = document.createElement('tr');
+                const statusClass = branch.active ? 'status-active' : 'status-inactive';
+                
+                row.innerHTML = `
+                    <td>${branch.name}</td>
+                    <td>
+                        <span class="status-indicator ${statusClass}"></span>
+                        ${branch.status}
+                    </td>
+                    <td>${branch.lastConnect}</td>
+                    <td>${branch.totalOrders}</td>
+                    <td>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" ${branch.active ? 'checked' : ''}>
+                        </div>
+                    </td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        }
+        
+        // Render extension state table
+        function renderExtensionStateTable() {
+            const tbody = document.getElementById('extensionStateTableBody');
+            tbody.innerHTML = '';
+            
+            extensionStateData.forEach(extension => {
+                const row = document.createElement('tr');
+                const statusClass = extension.status === 'Active' ? 'status-active' : 'status-inactive';
+                
+                row.innerHTML = `
+                    <td>${extension.extension}</td>
+                    <td>
+                        <span class="status-indicator ${statusClass}"></span>
+                        ${extension.status}
+                    </td>
+                    <td>${extension.lastConnect}</td>
+                    <td>${extension.totalOrders}</td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        }
+        
+        // Initialize sales chart
+        function initSalesChart() {
+            const ctx = document.getElementById('salesChart').getContext('2d');
+            
+            // Calculate sales by branch
+            const salesByBranch = {};
+            processedOrders.forEach(order => {
+                if (!salesByBranch[order.branch]) {
+                    salesByBranch[order.branch] = 0;
+                }
+                salesByBranch[order.branch] += order.amount;
+            });
+            
+            // Update sales total
+            const totalSales = Object.values(salesByBranch).reduce((a, b) => a + b, 0);
+            document.getElementById('salesTotal').textContent = `AED ${totalSales}`;
+            
+            // Create chart
+            salesChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(salesByBranch),
+                    datasets: [{
+                        label: 'Sales (AED)',
+                        data: Object.values(salesByBranch),
+                        backgroundColor: [
+                            'rgba(0, 255, 255, 0.6)',
+                            'rgba(255, 0, 255, 0.6)',
+                            'rgba(0, 255, 136, 0.6)',
+                            'rgba(255, 170, 0, 0.6)',
+                            'rgba(255, 0, 64, 0.6)',
+                            'rgba(255, 107, 107, 0.6)',
+                            'rgba(75, 192, 192, 0.6)',
+                            'rgba(153, 102, 255, 0.6)',
+                            'rgba(255, 159, 64, 0.6)'
+                        ],
+                        borderColor: [
+                            'rgba(0, 255, 255, 1)',
+                            'rgba(255, 0, 255, 1)',
+                            'rgba(0, 255, 136, 1)',
+                            'rgba(255, 170, 0, 1)',
+                            'rgba(255, 0, 64, 1)',
+                            'rgba(255, 107, 107, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(255, 159, 64, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.7)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.7)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: 'rgba(255, 255, 255, 0.7)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Update sales chart
+        function updateSalesChart() {
+            if (!salesChart) return;
+            
+            // Calculate sales by branch
+            const salesByBranch = {};
+            processedOrders.forEach(order => {
+                if (!salesByBranch[order.branch]) {
+                    salesByBranch[order.branch] = 0;
+                }
+                salesByBranch[order.branch] += order.amount;
+            });
+            
+            // Update sales total
+            const totalSales = Object.values(salesByBranch).reduce((a, b) => a + b, 0);
+            document.getElementById('salesTotal').textContent = `AED ${totalSales}`;
+            
+            // Update chart data
+            salesChart.data.labels = Object.keys(salesByBranch);
+            salesChart.data.datasets[0].data = Object.values(salesByBranch);
+            salesChart.update();
+        }
+        
+        // Update metrics
+        function updateMetrics() {
+            // Calculate metrics
+            const totalOrders = processedOrders.length;
+            const deliveryOrders = processedOrders.filter(order => order.type === 'Delivery').length;
+            const pickupOrders = processedOrders.filter(order => order.type === 'Pickup').length;
+            const delayedOrders = processedOrders.filter(order => order.status === 'Delayed').length;
+            
+            // Get unique agents
+            const agents = [...new Set(processedOrders.map(order => order.agent))];
+            const activeAgents = agents.length;
+            
+            // Update DOM
+            document.getElementById('totalOrders').textContent = totalOrders;
+            document.getElementById('deliveryOrders').textContent = deliveryOrders;
+            document.getElementById('pickupOrders').textContent = pickupOrders;
+            document.getElementById('activeAgents').textContent = activeAgents;
+        }
+        
+        // Initialize event listeners
+        function initializeEventListeners() {
+            // Search functionality
+            document.getElementById('searchInput').addEventListener('input', (e) => {
+                const searchTerm = e.target.value.toLowerCase();
+                const filteredOrders = processedOrders.filter(order => 
+                    order.orderNo.includes(searchTerm) ||
+                    order.customerName.toLowerCase().includes(searchTerm) ||
+                    (order.phone && order.phone.includes(searchTerm)) ||
+                    order.branch.toLowerCase().includes(searchTerm) ||
+                    order.agent.toLowerCase().includes(searchTerm)
+                );
+                renderOrders(filteredOrders);
+            });
+        }
+        
+        // Filter by order type
+        function filterOrders(type) {
+            currentFilter = type;
+            
+            // Filter orders
+            let filteredOrders = processedOrders;
+            
+            if (type !== 'all') {
+                if (type === 'delayed') {
+                    filteredOrders = filteredOrders.filter(order => order.status === 'Delayed');
+                } else {
+                    filteredOrders = filteredOrders.filter(order => order.type === type);
+                }
+            }
+            
+            renderOrders(filteredOrders);
+            showNotification(`Filtered by: ${type === 'all' ? 'All' : type}`);
+        }
+        
+        // Export all data
+        function exportAllData() {
+            const ws = XLSX.utils.json_to_sheet(processedOrders);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Orders');
+            XLSX.writeFile(wb, 'all_orders.xlsx');
+            showNotification('All data exported successfully');
+        }
+        
+        // Refresh data
+        function refreshData() {
+            showNotification('Refreshing data...');
+            setTimeout(() => {
+                renderOrders(processedOrders);
+                renderSystemSettings();
+                updateMetrics();
+                updateSalesChart();
+                showNotification('Data refreshed successfully');
+            }, 1000);
+        }
+        
+        // Show notification
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            const notificationText = document.getElementById('notificationText');
+            
+            notificationText.textContent = message;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
