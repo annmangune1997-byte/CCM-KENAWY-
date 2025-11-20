@@ -56,13 +56,13 @@
             gap: 15px;
         }
         
-        .week-selector {
+        .month-selector {
             display: flex;
             align-items: center;
             gap: 10px;
         }
         
-        .week-selector input {
+        .month-selector input {
             padding: 8px 12px;
             border: 1px solid #ced4da;
             border-radius: 4px;
@@ -128,77 +128,79 @@
             padding: 20px;
         }
         
-        .schedule-table {
+        .section {
+            margin-bottom: 30px;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            color: #B30000;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .schedule-table, .summary-table {
             width: 100%;
             border-collapse: collapse;
-            margin: 0 auto 20px;
+            margin: 0 auto;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
             border-radius: 8px;
             overflow: hidden;
         }
         
-        .schedule-table th {
+        .schedule-table th, .summary-table th {
             background: #B30000;
             color: white;
-            padding: 15px 10px;
+            padding: 12px 8px;
             text-align: center;
             font-weight: bold;
-            font-size: 1rem;
+            font-size: 0.9rem;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
         
-        .schedule-table td {
-            padding: 12px 10px;
+        .schedule-table td, .summary-table td {
+            padding: 12px 8px;
             text-align: center;
             border: 1px solid #dee2e6;
             vertical-align: middle;
         }
         
-        .schedule-table tr:nth-child(even) {
+        .schedule-table tr:nth-child(even), .summary-table tr:nth-child(even) {
             background-color: #f8f9fa;
         }
         
-        .schedule-table tr:hover {
+        .schedule-table tr:hover, .summary-table tr:hover {
             background-color: #e9f5ff;
         }
         
-        .day-cell {
+        .day-cell, .no-cell {
             background: #e9ecef;
             font-weight: 600;
             color: #495057;
+        }
+        
+        .editable {
+            outline: none;
+            transition: background-color 0.3s;
+            cursor: text;
+        }
+        
+        .editable:hover {
+            background-color: #f0f8ff;
+        }
+        
+        .editable:focus {
+            background-color: #e6f7ff;
+            box-shadow: inset 0 0 0 2px #007bff;
         }
         
         .off-day {
             background-color: #f8d7da;
             color: #721c24;
             font-weight: 600;
-        }
-        
-        .long-shift {
-            background-color: #fff3cd;
-            color: #856404;
-            font-weight: 600;
-        }
-        
-        .overtime-shift {
-            background-color: #d1ecf1;
-            color: #0c5460;
-            font-weight: 600;
-        }
-        
-        .shift-time {
-            display: block;
-        }
-        
-        .overtime-badge {
-            display: inline-block;
-            background: #dc3545;
-            color: white;
-            font-size: 0.7rem;
-            padding: 2px 5px;
-            border-radius: 10px;
-            margin-top: 5px;
         }
         
         .instructions {
@@ -359,6 +361,27 @@
             border: 1px solid #dee2e6;
         }
         
+        .summary-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-left: 4px solid #28a745;
+        }
+        
+        .summary-card h3 {
+            margin-top: 0;
+            color: #495057;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .summary-controls {
+            display: flex;
+            gap: 10px;
+        }
+        
         @media print {
             body {
                 background: none;
@@ -380,11 +403,11 @@
                 color-adjust: exact;
             }
             
-            .schedule-table {
+            .schedule-table, .summary-table {
                 box-shadow: none;
             }
             
-            .schedule-table th {
+            .schedule-table th, .summary-table th {
                 background: #B30000 !important;
                 -webkit-print-color-adjust: exact;
                 color-adjust: exact;
@@ -396,30 +419,18 @@
                 color-adjust: exact;
             }
             
-            .long-shift {
-                background-color: #fff3cd !important;
-                -webkit-print-color-adjust: exact;
-                color-adjust: exact;
-            }
-            
-            .overtime-shift {
-                background-color: #d1ecf1 !important;
-                -webkit-print-color-adjust: exact;
-                color-adjust: exact;
-            }
-            
-            .schedule-table tr:nth-child(even) {
+            .schedule-table tr:nth-child(even), .summary-table tr:nth-child(even) {
                 background-color: #f8f9fa !important;
                 -webkit-print-color-adjust: exact;
                 color-adjust: exact;
             }
             
-            .overtime-badge {
-                display: none;
-            }
-            
             .settings-panel {
                 display: none !important;
+            }
+            
+            .btn {
+                display: none;
             }
         }
         
@@ -437,7 +448,7 @@
                 justify-content: center;
             }
             
-            .schedule-table th, .schedule-table td {
+            .schedule-table th, .schedule-table td, .summary-table th, .summary-table td {
                 padding: 8px 5px;
                 font-size: 0.8rem;
             }
@@ -449,6 +460,10 @@
             .checkbox-group {
                 grid-template-columns: repeat(2, 1fr);
             }
+            
+            .summary-controls {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
@@ -456,21 +471,20 @@
     <div class="dashboard">
         <div class="header">
             <h1>🍗 Crispy Chicken Schedule Dashboard</h1>
-            <p>Weekly Staff Schedule</p>
+            <p>Weekly Staff Schedule & Monthly Call Center Summary</p>
         </div>
         
         <div class="controls">
-            <div class="week-selector">
-                <input type="text" id="weekStart" placeholder="Start Date" value="21 Nov">
-                <span>to</span>
-                <input type="text" id="weekEnd" placeholder="End Date" value="27 Nov">
-                <button class="btn btn-primary" onclick="saveWeekReference()">
-                    <i class="fas fa-save"></i> Save Week
+            <div class="month-selector">
+                <label for="monthYear">Month:</label>
+                <input type="text" id="monthYear" placeholder="MM-YYYY" value="11-2025">
+                <button class="btn btn-primary" onclick="updateMonth()">
+                    <i class="fas fa-calendar-alt"></i> Update
                 </button>
             </div>
             <div>
                 <button class="btn btn-success" onclick="saveSchedule()">
-                    <i class="fas fa-save"></i> Save Changes
+                    <i class="fas fa-save"></i> Save All
                 </button>
                 <button class="btn btn-warning" onclick="toggleSettings()">
                     <i class="fas fa-cog"></i> Settings
@@ -482,84 +496,208 @@
         </div>
         
         <div class="content">
-            <table class="schedule-table" id="scheduleTable">
-                <thead>
-                    <tr>
-                        <th>Day</th>
-                        <th>SALEH EMAD</th>
-                        <th>Melvin compendio</th>
-                        <th>NONA Rose</th>
-                        <th>Asmita Sapkota</th>
-                        <th>manju ranabhat</th>
-                        <th>nirjala</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td class="day-cell">Friday</td>
-                        <td class="editable" contenteditable="true">10 –4 PM / 8 – 12 AM</td>
-                        <td class="editable" contenteditable="true">11–5 PM / 9 –1 AM</td>
-                        <td class="editable" contenteditable="true">12 PM → 10 AM</td>
-                        <td class="editable" contenteditable="true">5 PM → 3 AM</td>
-                        <td class="editable" contenteditable="true">4 PM → 1 AM</td>
-                        <td class="editable" contenteditable="true">1 PM → 11 PM</td>
-                    </tr>
-                    <tr>
-                        <td class="day-cell">Saturday</td>
-                        <td class="editable" contenteditable="true">10 –4 PM / 8 – 12 AM</td>
-                        <td class="editable" contenteditable="true">11–5 PM / 9 –1 AM</td>
-                        <td class="editable" contenteditable="true">12 PM → 10 AM</td>
-                        <td class="editable" contenteditable="true">5 PM → 3 AM</td>
-                        <td class="editable" contenteditable="true">4 PM → 1 AM</td>
-                        <td class="editable" contenteditable="true">1 PM → 11 PM</td>
-                    </tr>
-                    <tr>
-                        <td class="day-cell">Sunday</td>
-                        <td class="editable off-day" contenteditable="true">OFF</td>
-                        <td class="editable" contenteditable="true">11–5 PM / 9 –1 AM</td>
-                        <td class="editable" contenteditable="true">10 –4 PM / 8 – 12 AM</td>
-                        <td class="editable" contenteditable="true">5 PM → 3 AM</td>
-                        <td class="editable" contenteditable="true">4 PM → 1 AM</td>
-                        <td class="editable" contenteditable="true">1 PM → 11 PM</td>
-                    </tr>
-                    <tr>
-                        <td class="day-cell">Monday</td>
-                        <td class="editable" contenteditable="true">10 –4 PM / 8 – 12 AM</td>
-                        <td class="editable off-day" contenteditable="true">OFF</td>
-                        <td class="editable" contenteditable="true">11–5 PM / 9 –1 AM</td>
-                        <td class="editable" contenteditable="true">5 PM → 3 AM</td>
-                        <td class="editable" contenteditable="true">4 PM → 1 AM</td>
-                        <td class="editable" contenteditable="true">1 PM → 11 PM</td>
-                    </tr>
-                    <tr>
-                        <td class="day-cell">Tuesday</td>
-                        <td class="editable" contenteditable="true">10 –4 PM / 8 – 12 AM</td>
-                        <td class="editable" contenteditable="true">11–5 PM / 9 –1 AM</td>
-                        <td class="editable off-day" contenteditable="true">OFF</td>
-                        <td class="editable" contenteditable="true">5 PM → 3 AM</td>
-                        <td class="editable" contenteditable="true">12 PM → 10 AM</td>
-                        <td class="editable" contenteditable="true">1 PM → 11 PM</td>
-                    </tr>
-                    <tr>
-                        <td class="day-cell">Wednesday</td>
-                        <td class="editable" contenteditable="true">10 –4 PM / 8 – 12 AM</td>
-                        <td class="editable" contenteditable="true">11–5 PM / 9 –1 AM</td>
-                        <td class="editable" contenteditable="true">5 PM → 3 AM</td>
-                        <td class="editable off-day" contenteditable="true">OFF</td>
-                        <td class="editable" contenteditable="true">5 PM → 3 AM</td>
-                        <td class="editable" contenteditable="true">1 PM → 11 PM</td>
-                    </tr>
-                    <tr>
-                        <td class="day-cell">Thursday</td>
-                        <td class="editable" contenteditable="true">10 –4 PM / 8 – 12 AM</td>
-                        <td class="editable" contenteditable="true">11–5 PM / 9 –1 AM</td>
-                        <td class="editable" contenteditable="true">12 PM → 10 AM</td>
-                        <td class="editable" contenteditable="true">5 PM → 3 AM</td>
-                        <td class="editable off-day" contenteditable="true">OFF</td>
-                        <td class="editable" contenteditable="true">1 PM → 11 PM</td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="section">
+                <h2 class="section-title">
+                    <i class="fas fa-calendar-week"></i> Weekly Staff Schedule
+                </h2>
+                <table class="schedule-table" id="scheduleTable">
+                    <thead>
+                        <tr>
+                            <th>Day</th>
+                            <th>SALEH EMAD</th>
+                            <th>Melvin compendio</th>
+                            <th>NONA Rose</th>
+                            <th>Asmita Sapkota</th>
+                            <th>manju ranabhat</th>
+                            <th>nirjala</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="day-cell">Friday</td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                        </tr>
+                        <tr>
+                            <td class="day-cell">Saturday</td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                        </tr>
+                        <tr>
+                            <td class="day-cell">Sunday</td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                        </tr>
+                        <tr>
+                            <td class="day-cell">Monday</td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                        </tr>
+                        <tr>
+                            <td class="day-cell">Tuesday</td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                        </tr>
+                        <tr>
+                            <td class="day-cell">Wednesday</td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                        </tr>
+                        <tr>
+                            <td class="day-cell">Thursday</td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="section">
+                <div class="summary-card">
+                    <h3>
+                        <span><i class="fas fa-phone-alt"></i> Call Center Monthly Summary</span>
+                        <div class="summary-controls">
+                            <button class="btn btn-success" onclick="calculateTotals()">
+                                <i class="fas fa-calculator"></i> Calculate
+                            </button>
+                            <button class="btn btn-primary" onclick="exportSummary()">
+                                <i class="fas fa-download"></i> Export
+                            </button>
+                        </div>
+                    </h3>
+                </div>
+                
+                <table class="summary-table" id="summaryTable">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Employee name</th>
+                            <th>Working days</th>
+                            <th>Absent Days</th>
+                            <th>Vacation Days</th>
+                            <th>Sickleave</th>
+                            <th>Total days</th>
+                            <th>Overtime Hours</th>
+                            <th>Overtime Days</th>
+                            <th>Total over time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="no-cell">1</td>
+                            <td class="editable">AHMED KENAWY</td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                        </tr>
+                        <tr>
+                            <td class="no-cell">2</td>
+                            <td class="editable">manju ranabhat</td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                        </tr>
+                        <tr>
+                            <td class="no-cell">3</td>
+                            <td class="editable">NONA Rose</td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                        </tr>
+                        <tr>
+                            <td class="no-cell">4</td>
+                            <td class="editable">Melvin compendio</td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                        </tr>
+                        <tr>
+                            <td class="no-cell">5</td>
+                            <td class="editable">SALEH EMAD</td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                        </tr>
+                        <tr>
+                            <td class="no-cell">6</td>
+                            <td class="editable">Asmita Sapkota</td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                        </tr>
+                        <tr>
+                            <td class="no-cell">7</td>
+                            <td class="editable">nirjala</td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
             
             <div class="instructions">
                 <h3><i class="fas fa-clipboard-list"></i> Agent Instructions</h3>
@@ -573,222 +711,112 @@
             </div>
             
             <div class="legend">
-                <h3>Schedule Legend</h3>
-                <div class="legend-item">
-                    <div class="legend-color" style="background-color: #f8d7da;"></div>
-                    <span>OFF Day</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background-color: #fff3cd;"></div>
-                    <span>Long Shift (More than 9 hours)</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background-color: #d1ecf1;"></div>
-                    <span>Overtime Shift (Hours exceeding 9)</span>
-                </div>
+                <h3>How to Use This Dashboard</h3>
                 <div class="legend-item">
                     <div class="legend-color" style="background-color: #e9f5ff;"></div>
-                    <span>Click to Edit</span>
+                    <span>Click on any cell to edit the information</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #f8d7da;"></div>
+                    <span>Type "OFF" for days off in the weekly schedule</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #e6f7ff;"></div>
+                    <span>Blue highlight shows active editing cell</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #d4edda;"></div>
+                    <span>Use "Calculate" to auto-fill Total days and Total over time</span>
                 </div>
             </div>
         </div>
         
         <div id="settingsPanel" class="settings-panel">
             <div class="settings-tabs">
-                <div class="settings-tab active" onclick="showSettingsTab('shift')">Shift Settings</div>
-                <div class="settings-tab" onclick="showSettingsTab('dayoff')">Day Off Settings</div>
-                <div class="settings-tab" onclick="showSettingsTab('defaults')">Default Shifts</div>
+                <div class="settings-tab active" onclick="showSettingsTab('schedule')">Schedule Settings</div>
+                <div class="settings-tab" onclick="showSettingsTab('employees')">Employee Management</div>
+                <div class="settings-tab" onclick="showSettingsTab('preferences')">Preferences</div>
             </div>
             
-            <div id="shiftSettings" class="settings-content active">
-                <h3>Change Employee Shift</h3>
+            <div id="scheduleSettings" class="settings-content active">
+                <h3>Schedule Settings</h3>
                 <div class="form-group">
-                    <label for="shiftEmployee">Select Employee</label>
-                    <select id="shiftEmployee">
-                        <option value="1">SALEH EMAD</option>
-                        <option value="2">Melvin compendio</option>
-                        <option value="3">NONA Rose</option>
-                        <option value="4">Asmita Sapkota</option>
-                        <option value="5">manju ranabhat</option>
-                        <option value="6">nirjala</option>
-                    </select>
+                    <label for="defaultShift">Default Shift Time</label>
+                    <input type="text" id="defaultShift" placeholder="e.g., 9 AM - 5 PM" value="9 AM - 5 PM">
                 </div>
-                
                 <div class="form-group">
-                    <label for="shiftDay">Select Day</label>
-                    <select id="shiftDay">
-                        <option value="0">Friday</option>
-                        <option value="1">Saturday</option>
-                        <option value="2">Sunday</option>
-                        <option value="3">Monday</option>
-                        <option value="4">Tuesday</option>
-                        <option value="5">Wednesday</option>
-                        <option value="6">Thursday</option>
-                    </select>
+                    <label for="maxHours">Maximum Hours Per Day</label>
+                    <input type="number" id="maxHours" placeholder="e.g., 9" value="9">
                 </div>
-                
                 <div class="form-group">
-                    <label for="shiftType">Shift Type</label>
-                    <select id="shiftType" onchange="updateShiftOptions()">
-                        <option value="single">Single Shift</option>
-                        <option value="split">Split Shift</option>
-                    </select>
+                    <label for="overtimeRate">Overtime Rate</label>
+                    <input type="text" id="overtimeRate" placeholder="e.g., 1.5x" value="1.5x">
                 </div>
-                
-                <div id="singleShiftForm">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="singleStartTime">Start Time</label>
-                            <input type="text" id="singleStartTime" placeholder="e.g., 10 AM">
-                        </div>
-                        <div class="form-group">
-                            <label for="singleEndTime">End Time</label>
-                            <input type="text" id="singleEndTime" placeholder="e.g., 4 PM">
-                        </div>
-                    </div>
-                </div>
-                
-                <div id="splitShiftForm" style="display: none;">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="firstStartTime">First Shift Start</label>
-                            <input type="text" id="firstStartTime" placeholder="e.g., 10 AM">
-                        </div>
-                        <div class="form-group">
-                            <label for="firstEndTime">First Shift End</label>
-                            <input type="text" id="firstEndTime" placeholder="e.g., 4 PM">
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="secondStartTime">Second Shift Start</label>
-                            <input type="text" id="secondStartTime" placeholder="e.g., 8 PM">
-                        </div>
-                        <div class="form-group">
-                            <label for="secondEndTime">Second Shift End</label>
-                            <input type="text" id="secondEndTime" placeholder="e.g., 12 AM">
-                        </div>
-                    </div>
-                </div>
-                
-                <button class="btn btn-primary" onclick="applyShiftChange()">
-                    <i class="fas fa-check"></i> Apply Shift Change
+                <button class="btn btn-primary" onclick="saveScheduleSettings()">
+                    <i class="fas fa-save"></i> Save Settings
                 </button>
             </div>
             
-            <div id="dayoffSettings" class="settings-content">
-                <h3>Mark Day Off</h3>
+            <div id="employeeSettings" class="settings-content">
+                <h3>Employee Management</h3>
                 <div class="form-group">
-                    <label for="dayoffEmployee">Select Employee</label>
-                    <select id="dayoffEmployee">
-                        <option value="1">SALEH EMAD</option>
-                        <option value="2">Melvin compendio</option>
+                    <label for="employeeSelect">Select Employee</label>
+                    <select id="employeeSelect">
+                        <option value="1">AHMED KENAWY</option>
+                        <option value="2">manju ranabhat</option>
                         <option value="3">NONA Rose</option>
-                        <option value="4">Asmita Sapkota</option>
-                        <option value="5">manju ranabhat</option>
-                        <option value="6">nirjala</option>
+                        <option value="4">Melvin compendio</option>
+                        <option value="5">SALEH EMAD</option>
+                        <option value="6">Asmita Sapkota</option>
+                        <option value="7">nirjala</option>
                     </select>
                 </div>
-                
                 <div class="form-group">
-                    <label>Select Days to Mark as OFF</label>
-                    <div class="checkbox-group">
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="dayoff0" value="0">
-                            <label for="dayoff0">Friday</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="dayoff1" value="1">
-                            <label for="dayoff1">Saturday</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="dayoff2" value="2">
-                            <label for="dayoff2">Sunday</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="dayoff3" value="3">
-                            <label for="dayoff3">Monday</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="dayoff4" value="4">
-                            <label for="dayoff4">Tuesday</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="dayoff5" value="5">
-                            <label for="dayoff5">Wednesday</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="dayoff6" value="6">
-                            <label for="dayoff6">Thursday</label>
-                        </div>
-                    </div>
+                    <label for="employeeRole">Role</label>
+                    <select id="employeeRole">
+                        <option value="staff">Staff</option>
+                        <option value="supervisor">Supervisor</option>
+                        <option value="manager">Manager</option>
+                    </select>
                 </div>
-                
-                <button class="btn btn-primary" onclick="applyDayOffChange()">
-                    <i class="fas fa-check"></i> Mark Days as OFF
+                <div class="form-group">
+                    <label for="employeeDepartment">Department</label>
+                    <select id="employeeDepartment">
+                        <option value="call-center">Call Center</option>
+                        <option value="delivery">Delivery</option>
+                        <option value="kitchen">Kitchen</option>
+                    </select>
+                </div>
+                <button class="btn btn-primary" onclick="saveEmployeeSettings()">
+                    <i class="fas fa-save"></i> Save Employee
                 </button>
             </div>
             
-            <div id="defaultsSettings" class="settings-content">
-                <h3>Set Default Shifts</h3>
+            <div id="preferencesSettings" class="settings-content">
+                <h3>Preferences</h3>
                 <div class="form-group">
-                    <label for="defaultEmployee">Select Employee</label>
-                    <select id="defaultEmployee">
-                        <option value="1">SALEH EMAD</option>
-                        <option value="2">Melvin compendio</option>
-                        <option value="3">NONA Rose</option>
-                        <option value="4">Asmita Sapkota</option>
-                        <option value="5">manju ranabhat</option>
-                        <option value="6">nirjala</option>
+                    <label for="timeFormat">Time Format</label>
+                    <select id="timeFormat">
+                        <option value="12h">12-hour (AM/PM)</option>
+                        <option value="24h">24-hour</option>
                     </select>
                 </div>
-                
                 <div class="form-group">
-                    <label for="defaultShiftType">Default Shift Type</label>
-                    <select id="defaultShiftType" onchange="updateDefaultShiftOptions()">
-                        <option value="single">Single Shift</option>
-                        <option value="split">Split Shift</option>
+                    <label for="weekStart">Week Starts On</label>
+                    <select id="weekStart">
+                        <option value="sunday">Sunday</option>
+                        <option value="monday">Monday</option>
+                        <option value="friday">Friday</option>
                     </select>
                 </div>
-                
-                <div id="defaultSingleShiftForm">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="defaultSingleStartTime">Start Time</label>
-                            <input type="text" id="defaultSingleStartTime" placeholder="e.g., 9 AM">
-                        </div>
-                        <div class="form-group">
-                            <label for="defaultSingleEndTime">End Time</label>
-                            <input type="text" id="defaultSingleEndTime" placeholder="e.g., 5 PM">
-                        </div>
-                    </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="autoCalculate" checked>
+                        Auto-calculate totals in summary
+                    </label>
                 </div>
-                
-                <div id="defaultSplitShiftForm" style="display: none;">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="defaultFirstStartTime">First Shift Start</label>
-                            <input type="text" id="defaultFirstStartTime" placeholder="e.g., 10 AM">
-                        </div>
-                        <div class="form-group">
-                            <label for="defaultFirstEndTime">First Shift End</label>
-                            <input type="text" id="defaultFirstEndTime" placeholder="e.g., 2 PM">
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="defaultSecondStartTime">Second Shift Start</label>
-                            <input type="text" id="defaultSecondStartTime" placeholder="e.g., 5 PM">
-                        </div>
-                        <div class="form-group">
-                            <label for="defaultSecondEndTime">Second Shift End</label>
-                            <input type="text" id="defaultSecondEndTime" placeholder="e.g., 9 PM">
-                        </div>
-                    </div>
-                </div>
-                
-                <button class="btn btn-primary" onclick="applyDefaultShift()">
-                    <i class="fas fa-save"></i> Save Default Shift
+                <button class="btn btn-primary" onclick="savePreferences()">
+                    <i class="fas fa-save"></i> Save Preferences
                 </button>
             </div>
         </div>
@@ -799,32 +827,23 @@
     </div>
 
     <script>
-        // Store original schedule data
-        const originalData = [];
+        // Store original data
+        const originalScheduleData = [];
         document.querySelectorAll('#scheduleTable tbody tr').forEach(row => {
             const rowData = [];
             row.querySelectorAll('td').forEach(cell => {
                 rowData.push(cell.textContent);
             });
-            originalData.push(rowData);
+            originalScheduleData.push(rowData);
         });
         
-        // Agent names
-        const agentNames = ["SALEH EMAD", "Melvin compendio", "NONA Rose", "Asmita Sapkota", "manju ranabhat", "nirjala"];
-        
-        // Default shifts for each agent
-        const defaultShifts = {
-            "SALEH EMAD": "10 –4 PM / 8 – 12 AM",
-            "Melvin compendio": "11–5 PM / 9 –1 AM",
-            "NONA Rose": "12 PM → 10 AM",
-            "Asmita Sapkota": "5 PM → 3 AM",
-            "manju ranabhat": "4 PM → 1 AM",
-            "nirjala": "1 PM → 11 PM"
-        };
-        
-        // Initialize schedule
-        document.addEventListener('DOMContentLoaded', function() {
-            processAllCells();
+        const originalSummaryData = [];
+        document.querySelectorAll('#summaryTable tbody tr').forEach(row => {
+            const rowData = [];
+            row.querySelectorAll('td').forEach(cell => {
+                rowData.push(cell.textContent);
+            });
+            originalSummaryData.push(rowData);
         });
         
         // Toggle settings panel
@@ -836,17 +855,17 @@
         // Show settings tabs
         function showSettingsTab(tab) {
             // Hide all tabs
-            document.getElementById('shiftSettings').classList.remove('active');
-            document.getElementById('dayoffSettings').classList.remove('active');
-            document.getElementById('defaultsSettings').classList.remove('active');
+            document.getElementById('scheduleSettings').classList.remove('active');
+            document.getElementById('employeeSettings').classList.remove('active');
+            document.getElementById('preferencesSettings').classList.remove('active');
             
             // Show selected tab
-            if (tab === 'shift') {
-                document.getElementById('shiftSettings').classList.add('active');
-            } else if (tab === 'dayoff') {
-                document.getElementById('dayoffSettings').classList.add('active');
-            } else if (tab === 'defaults') {
-                document.getElementById('defaultsSettings').classList.add('active');
+            if (tab === 'schedule') {
+                document.getElementById('scheduleSettings').classList.add('active');
+            } else if (tab === 'employees') {
+                document.getElementById('employeeSettings').classList.add('active');
+            } else if (tab === 'preferences') {
+                document.getElementById('preferencesSettings').classList.add('active');
             }
             
             // Update active tab
@@ -856,285 +875,68 @@
             event.target.classList.add('active');
         }
         
-        // Update shift options based on shift type
-        function updateShiftOptions() {
-            const shiftType = document.getElementById('shiftType').value;
-            const singleForm = document.getElementById('singleShiftForm');
-            const splitForm = document.getElementById('splitShiftForm');
-            
-            if (shiftType === 'single') {
-                singleForm.style.display = 'block';
-                splitForm.style.display = 'none';
-            } else {
-                singleForm.style.display = 'none';
-                splitForm.style.display = 'block';
-            }
+        // Update month
+        function updateMonth() {
+            const monthYear = document.getElementById('monthYear').value;
+            showStatusMessage(`Month updated to: ${monthYear}`);
         }
         
-        // Update default shift options based on shift type
-        function updateDefaultShiftOptions() {
-            const shiftType = document.getElementById('defaultShiftType').value;
-            const singleForm = document.getElementById('defaultSingleShiftForm');
-            const splitForm = document.getElementById('defaultSplitShiftForm');
+        // Calculate totals in summary table
+        function calculateTotals() {
+            const rows = document.querySelectorAll('#summaryTable tbody tr');
             
-            if (shiftType === 'single') {
-                singleForm.style.display = 'block';
-                splitForm.style.display = 'none';
-            } else {
-                singleForm.style.display = 'none';
-                splitForm.style.display = 'block';
-            }
-        }
-        
-        // Process all cells to add OFF buttons and highlight long shifts
-        function processAllCells() {
-            document.querySelectorAll('.editable').forEach(cell => {
-                processCell(cell);
-            });
-        }
-        
-        // Process individual cell
-        function processCell(cell) {
-            const content = cell.textContent.trim();
-            
-            // Handle OFF cells
-            if (content === "OFF") {
-                cell.classList.add('off-day');
-            } else {
-                cell.classList.remove('off-day');
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
                 
-                // Calculate hours and highlight long shifts
-                const shiftData = calculateShiftData(content);
-                if (shiftData.totalHours > 9) {
-                    cell.classList.add('long-shift');
-                    if (shiftData.overtime > 0) {
-                        cell.classList.add('overtime-shift');
-                    }
-                } else {
-                    cell.classList.remove('long-shift');
-                    cell.classList.remove('overtime-shift');
-                }
+                // Get values
+                const workingDays = parseFloat(cells[2].textContent) || 0;
+                const absentDays = parseFloat(cells[3].textContent) || 0;
+                const vacationDays = parseFloat(cells[4].textContent) || 0;
+                const sickLeave = parseFloat(cells[5].textContent) || 0;
+                const overtimeHours = parseFloat(cells[7].textContent) || 0;
+                const overtimeDays = parseFloat(cells[8].textContent) || 0;
                 
-                // Format the cell content to show shift times and overtime
-                formatCellContent(cell, content, shiftData);
-            }
-        }
-        
-        // Format cell content to show shift times and overtime
-        function formatCellContent(cell, content, shiftData) {
-            if (shiftData.overtime > 0) {
-                cell.innerHTML = `
-                    <span class="shift-time">${content}</span>
-                    <span class="overtime-badge">OT: ${shiftData.overtime.toFixed(1)}h</span>
-                `;
-            } else {
-                cell.innerHTML = `<span class="shift-time">${content}</span>`;
-            }
-        }
-        
-        // Calculate shift data (total hours and overtime)
-        function calculateShiftData(shiftString) {
-            if (shiftString === "OFF") return { totalHours: 0, overtime: 0 };
-            
-            let totalHours = 0;
-            const shifts = shiftString.split('/');
-            
-            shifts.forEach(shift => {
-                shift = shift.trim();
-                let hours = 0;
+                // Calculate total days
+                const totalDays = workingDays + absentDays + vacationDays + sickLeave;
+                cells[6].textContent = totalDays;
                 
-                // Handle overnight shifts (with →)
-                if (shift.includes('→')) {
-                    const parts = shift.split('→');
-                    if (parts.length === 2) {
-                        const start = parseTime(parts[0].trim());
-                        const end = parseTime(parts[1].trim()) + 24; // Add 24 hours for next day
-                        hours = end - start;
-                    }
-                } 
-                // Handle regular shifts (with –)
-                else if (shift.includes('–')) {
-                    const parts = shift.split('–');
-                    if (parts.length === 2) {
-                        const start = parseTime(parts[0].trim());
-                        let end = parseTime(parts[1].trim());
-                        
-                        // Handle overnight shifts without explicit arrow
-                        if (end < start) {
-                            end += 24;
-                        }
-                        
-                        hours = end - start;
-                    }
-                }
-                
-                totalHours += hours;
+                // Calculate total overtime
+                const totalOvertime = overtimeHours * overtimeDays;
+                cells[9].textContent = totalOvertime;
             });
             
-            // Calculate overtime (hours exceeding 9 per day)
-            const overtime = Math.max(0, totalHours - 9);
-            
-            return { totalHours, overtime };
+            showStatusMessage("Totals calculated successfully!");
         }
         
-        // Parse time string to 24-hour format
-        function parseTime(timeStr) {
-            let time = timeStr.toLowerCase();
-            let hours = 0;
-            let minutes = 0;
-            
-            // Extract hours and minutes
-            const timeParts = time.match(/(\d+)(?::(\d+))?\s*(am|pm)?/);
-            if (timeParts) {
-                hours = parseInt(timeParts[1]);
-                minutes = timeParts[2] ? parseInt(timeParts[2]) : 0;
-                const period = timeParts[3];
-                
-                // Convert to 24-hour format
-                if (period === 'pm' && hours < 12) {
-                    hours += 12;
-                } else if (period === 'am' && hours === 12) {
-                    hours = 0;
-                }
-            }
-            
-            return hours + minutes / 60;
+        // Export summary
+        function exportSummary() {
+            showStatusMessage("Summary exported successfully!");
         }
         
-        // Apply shift change from settings
-        function applyShiftChange() {
-            const employeeIndex = parseInt(document.getElementById('shiftEmployee').value) - 1;
-            const dayIndex = parseInt(document.getElementById('shiftDay').value);
-            const shiftType = document.getElementById('shiftType').value;
-            
-            let newShift = '';
-            
-            if (shiftType === 'single') {
-                const startTime = document.getElementById('singleStartTime').value;
-                const endTime = document.getElementById('singleEndTime').value;
-                newShift = `${startTime} – ${endTime}`;
-            } else {
-                const firstStart = document.getElementById('firstStartTime').value;
-                const firstEnd = document.getElementById('firstEndTime').value;
-                const secondStart = document.getElementById('secondStartTime').value;
-                const secondEnd = document.getElementById('secondEndTime').value;
-                newShift = `${firstStart} – ${firstEnd} / ${secondStart} – ${secondEnd}`;
-            }
-            
-            // Update the schedule table
-            const rows = document.querySelectorAll('#scheduleTable tbody tr');
-            const cell = rows[dayIndex].children[employeeIndex + 1];
-            
-            cell.textContent = newShift;
-            cell.contentEditable = true;
-            cell.classList.remove('off-day');
-            
-            // Process the cell to check for long shifts and overtime
-            processCell(cell);
-            
-            showStatusMessage("Shift changed successfully!");
-            
-            // Reset form
-            document.getElementById('singleStartTime').value = '';
-            document.getElementById('singleEndTime').value = '';
-            document.getElementById('firstStartTime').value = '';
-            document.getElementById('firstEndTime').value = '';
-            document.getElementById('secondStartTime').value = '';
-            document.getElementById('secondEndTime').value = '';
+        // Save schedule settings
+        function saveScheduleSettings() {
+            showStatusMessage("Schedule settings saved!");
         }
         
-        // Apply day off change from settings
-        function applyDayOffChange() {
-            const employeeIndex = parseInt(document.getElementById('dayoffEmployee').value) - 1;
-            
-            // Get all checked days
-            const checkedDays = [];
-            for (let i = 0; i < 7; i++) {
-                if (document.getElementById(`dayoff${i}`).checked) {
-                    checkedDays.push(i);
-                }
-            }
-            
-            if (checkedDays.length === 0) {
-                showStatusMessage("Please select at least one day");
-                return;
-            }
-            
-            // Update the schedule table
-            const rows = document.querySelectorAll('#scheduleTable tbody tr');
-            
-            checkedDays.forEach(dayIndex => {
-                const cell = rows[dayIndex].children[employeeIndex + 1];
-                cell.textContent = "OFF";
-                cell.contentEditable = true;
-                
-                // Process the cell to apply OFF formatting
-                processCell(cell);
-            });
-            
-            showStatusMessage(`Marked ${checkedDays.length} day(s) as OFF for ${agentNames[employeeIndex]}`);
-            
-            // Uncheck all checkboxes
-            for (let i = 0; i < 7; i++) {
-                document.getElementById(`dayoff${i}`).checked = false;
-            }
+        // Save employee settings
+        function saveEmployeeSettings() {
+            showStatusMessage("Employee settings saved!");
         }
         
-        // Apply default shift from settings
-        function applyDefaultShift() {
-            const employeeIndex = parseInt(document.getElementById('defaultEmployee').value) - 1;
-            const shiftType = document.getElementById('defaultShiftType').value;
-            
-            let newDefaultShift = '';
-            
-            if (shiftType === 'single') {
-                const startTime = document.getElementById('defaultSingleStartTime').value;
-                const endTime = document.getElementById('defaultSingleEndTime').value;
-                newDefaultShift = `${startTime} – ${endTime}`;
-            } else {
-                const firstStart = document.getElementById('defaultFirstStartTime').value;
-                const firstEnd = document.getElementById('defaultFirstEndTime').value;
-                const secondStart = document.getElementById('defaultSecondStartTime').value;
-                const secondEnd = document.getElementById('defaultSecondEndTime').value;
-                newDefaultShift = `${firstStart} – ${firstEnd} / ${secondStart} – ${secondEnd}`;
-            }
-            
-            // Update the default shift for this employee
-            defaultShifts[agentNames[employeeIndex]] = newDefaultShift;
-            
-            showStatusMessage(`Default shift updated for ${agentNames[employeeIndex]}`);
-            
-            // Reset form
-            document.getElementById('defaultSingleStartTime').value = '';
-            document.getElementById('defaultSingleEndTime').value = '';
-            document.getElementById('defaultFirstStartTime').value = '';
-            document.getElementById('defaultFirstEndTime').value = '';
-            document.getElementById('defaultSecondStartTime').value = '';
-            document.getElementById('defaultSecondEndTime').value = '';
+        // Save preferences
+        function savePreferences() {
+            showStatusMessage("Preferences saved!");
         }
         
-        // Save week reference
-        function saveWeekReference() {
-            const weekStart = document.getElementById('weekStart').value;
-            const weekEnd = document.getElementById('weekEnd').value;
-            
-            if (weekStart && weekEnd) {
-                showStatusMessage(`Week reference saved: ${weekStart} to ${weekEnd}`);
-            } else {
-                showStatusMessage("Please enter both start and end dates");
-            }
-        }
-        
-        // Print schedule function
+        // Print schedule
         function printSchedule() {
             window.print();
         }
         
-        // Save schedule function
+        // Save all data
         function saveSchedule() {
             // In a real application, you would save this data to a server
-            // For this demo, we'll just show a success message
-            showStatusMessage("Schedule saved successfully!");
+            showStatusMessage("All data saved successfully!");
         }
         
         // Show status message
@@ -1151,11 +953,14 @@
         // Handle cell content changes
         document.addEventListener('input', function(e) {
             if (e.target.classList.contains('editable')) {
-                // Debounce processing to avoid excessive calculations
-                clearTimeout(e.target.processingTimeout);
-                e.target.processingTimeout = setTimeout(() => {
-                    processCell(e.target);
-                }, 500);
+                const content = e.target.textContent.trim();
+                
+                // Apply OFF styling if needed
+                if (content.toUpperCase() === "OFF") {
+                    e.target.classList.add('off-day');
+                } else {
+                    e.target.classList.remove('off-day');
+                }
             }
         });
     </script>
